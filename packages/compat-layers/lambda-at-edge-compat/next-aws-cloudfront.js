@@ -259,8 +259,20 @@ const handler = (
           : Buffer.from(response.body).toString("base64");
       }
 
+      const resHeaders = Object.keys(res.headers).map(key => {
+        if (key.toLowerCase() === 'set-cookie') {
+          const index = res.headers[key].indexOf('session.sig');
+          return [
+            res.headers[key].substring(0, index - 2),
+            res.headers[key].substring(index)
+          ];
+        } else {
+          return res.headers[key];
+        }
+      })
+
       response.headers = toCloudFrontHeaders(
-        res.headers,
+        resHeaders,
         headerNames,
         cfResponse.headers
       );
