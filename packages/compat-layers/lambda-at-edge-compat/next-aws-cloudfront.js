@@ -259,17 +259,17 @@ const handler = (
           : Buffer.from(response.body).toString("base64");
       }
 
-      const resHeaders = Object.keys(res.headers).map(key => {
-        if (key.toLowerCase() === 'set-cookie') {
-          const index = res.headers[key].indexOf('session.sig');
-          return [
-            res.headers[key].substring(0, index - 2),
-            res.headers[key].substring(index)
-          ];
+      const resHeaders = Object.fromEntries(Object.entries(res.headers).map(([k, v]) => {
+        if (k.toLowerCase() === 'set-cookie') {
+          const index = v.indexOf('session.sig');
+          return [k, [
+            v.substring(0, index - 2),
+            v.substring(index)
+          ]];
         } else {
-          return res.headers[key];
+          return [k, v];
         }
-      })
+      }));
 
       response.headers = toCloudFrontHeaders(
         resHeaders,
